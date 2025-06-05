@@ -63,7 +63,7 @@ then
     VALIDATE $? "creating rabbitmq user for roboshop"
 else
     echo "User roboshop already exists, skipping creation..."
-    SUCCESS "User roboshop already exists"
+   
 fi
 
 
