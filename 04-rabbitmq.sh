@@ -45,7 +45,7 @@ CHECK_USER(){
 
 CHECK_USER
 
-cp /home/ec2-user/roboshop-shell-scripts/04-rabbitmq.sh /etc/yum.repos.d/rabbitmq.repo
+cp /home/ec2-user/roboshop-shell-scripts/04-rabbitmq.repo /etc/yum.repos.d/rabbitmq.repo
 
 dnf install rabbitmq-server -y
 VALIDATE $? "Installing rabbitmq"
