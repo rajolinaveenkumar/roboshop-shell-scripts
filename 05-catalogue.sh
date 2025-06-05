@@ -45,11 +45,57 @@ CHECK_USER(){
 
 CHECK_USER
 
-dnf module disable nodejs -y
-dnf module enable nodejs:20 -y
-dnf install nodejs -y
-useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop
+dnf module disable nodejs -y &>>$LOG_FILE_NAME
+VALIDATE $? "Disabling existing default NodeJS"
+
+dnf module enable nodejs:20 -y &>>$LOG_FILE_NAME
+VALIDATE $? "enabling nodejs:20"
+
+dnf install nodejs -y &>>$LOG_FILE_NAME
+VALIDATE $? "installing nodejs"
+
+id roboshop
+if [ $? -ne 0 ]
+then
+    useradd --system --home /app --shell /sbin/nologin --comment "roboshop system user" roboshop
+    VALIDATE $? "Creating roboshop user"
+else
+    echo -e "$Y roboshop user is allready exist $N"
+fi
+
+
 mkdir /app 
-curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip 
+VALIDATE $? "creating app directory"
+
+curl -o /tmp/catalogue.zip https://roboshop-artifacts.s3.amazonaws.com/catalogue-v3.zip
+VALIDATE $? "catalogue content download"
+
+rm -rf /app/*
+VALIDATE $? "Deleting existing content in /app directory"
+
 cd /app 
+VALIDATE $? "redirect to /app directory"
+
 unzip /tmp/catalogue.zip
+VALIDATE $? "unziping the content on /app directory"
+
+npm install
+VALIDATE $? "npm install.. installing dependencies"
+
+cp /home/ec2-user/roboshop-shell-scripts/05-catalogue.service /etc/systemd/system/catalogue.service
+VALIDATE $? "configaring the catalogue service"
+
+systemctl daemon-reload
+VALIDATE $? "daemon-reloading.... services"
+
+systemctl enable catalogue
+VALIDATE $? "enabling catalogue service"
+
+systemctl start catalogue
+VALIDATE $? "starting catalogue service"
+
+# preparing mysql schema
+print_time
+
+
+
