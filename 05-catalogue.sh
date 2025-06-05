@@ -94,8 +94,24 @@ VALIDATE $? "enabling catalogue service"
 systemctl start catalogue
 VALIDATE $? "starting catalogue service"
 
-# preparing mysql schema
+# To load schema / master data we need to install mongodb client and then we can load it.
+cp /home/ec2-user/roboshop-shell-scripts/01-mongo.repo /etc/yum.repos.d/mongo.repo
+
+dnf install mongodb-mongosh -y
+VALIDATE $? "Installing MongoDB Client"
+
+STATUS=$(mongosh --host 172.31.25.225 --eval 'db.getMongo().getDBNames().indexOf("catalogue")')
+if [ $STATUS -lt 0 ]
+then
+    mongosh --host 172.31.25.225 </app/db/master-data.js
+    VALIDATE $? "Loading data into MongoDB"
+else
+    echo -e "Data is already loaded ... $Y SKIPPING $N"
+fi
+
 print_time
+
+
 
 
 
