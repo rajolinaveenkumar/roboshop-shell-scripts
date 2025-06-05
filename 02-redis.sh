@@ -51,6 +51,9 @@ VALIDATE $? "Disabling existing redis"
 dnf module enable redis:7 -y
 VALIDATE $? "Disabling enabling redis 7"
 
+dnf install redis -y 
+VALIDATE $? "Installing redis"
+
 sed -i -e 's/127.0.0.1/0.0.0.0/g' -e '/protected-mode/ c protected-mode on' /etc/redis/redis.conf
 
 systemctl enable redis 
