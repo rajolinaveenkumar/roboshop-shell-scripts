@@ -70,3 +70,5 @@ then
 else
     echo -e " $Y MYSQL ROOT PASSWORD ALLREADY SET!!!!! $N"
 fi
+
+print_time
