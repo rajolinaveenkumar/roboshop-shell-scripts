@@ -60,7 +60,7 @@ VALIDATE $? "enabling MYSQL service"
 systemctl start mysqld &>>$LOG_FILE_NAME
 VALIDATE $? "start MYSQL service"
 
-mysql -h 172.31.21.118 -u root -pRoboShop@1 -e 'show databases;' &>>$LOG_FILE_NAME
+mysql -h 172.31.16.200 -u root -pRoboShop@1 -e 'show databases;' &>>$LOG_FILE_NAME
 
 if [ $? -ne 0 ]
 then
