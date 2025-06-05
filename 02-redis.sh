@@ -24,10 +24,10 @@ LOG_FILE_NAME="$LOG_FOLDER/$LOG_FILE-$TIMESTAMP.log"
 VALIDATE(){
     if [ $1 -ne 0 ]
     then
-        echo -e "$R  $2 is ............FAILURE $N"
+        echo -e "$R  $2 ............FAILURE $N"
         exit 1
     else
-        echo -e "$G $2 is ............SUCCESS $N"
+        echo -e "$G $2 ............SUCCESS $N"
     fi
 }
 
@@ -49,7 +49,7 @@ dnf module disable redis -y
 VALIDATE $? "Disabling existing redis"
 
 dnf module enable redis:7 -y
-VALIDATE $? "Disabling enabling redis 7"
+VALIDATE $? "enabling redis 7"
 
 dnf install redis -y 
 VALIDATE $? "Installing redis"
