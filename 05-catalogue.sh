@@ -100,10 +100,10 @@ cp /home/ec2-user/roboshop-shell-scripts/01-mongo.repo /etc/yum.repos.d/mongo.re
 dnf install mongodb-mongosh -y
 VALIDATE $? "Installing MongoDB Client"
 
-STATUS=$(mongosh --host 172.31.25.225 --eval 'db.getMongo().getDBNames().indexOf("catalogue")')
+STATUS=$(mongosh --host 172.31.29.210 --eval 'db.getMongo().getDBNames().indexOf("catalogue")')
 if [ $STATUS -lt 0 ]
 then
-    mongosh --host 172.31.25.225 </app/db/master-data.js
+    mongosh --host 172.31.29.210 </app/db/master-data.js
     VALIDATE $? "Loading data into MongoDB"
 else
     echo -e "Data is already loaded ... $Y SKIPPING $N"
