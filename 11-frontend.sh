@@ -67,6 +67,9 @@ VALIDATE $? "redirect to html directory"
 unzip /tmp/frontend.zip &>>$LOG_FILE_NAME
 VALIDATE $? "unziping the content on html directory"
 
+rm -rf /etc/nginx/nginx.conf
+VALIDATE $? "Remove default nginx conf"
+
 cp /home/ec2-user/roboshop-shell-scripts/11-nginx.conf /etc/nginx/nginx.conf &>>$LOG_FILE_NAME
 VALIDATE $? "Copied roboshop config file"
 
