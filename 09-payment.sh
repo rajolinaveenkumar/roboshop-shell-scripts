@@ -45,8 +45,8 @@ CHECK_USER(){
 
 CHECK_USER
 
-dnf install maven -y &>>$LOG_FILE_NAME
-VALIDATE $? "installing maven"
+dnf install python3 gcc python3-devel -y &>>$LOG_FILE_NAME
+VALIDATE $? "installing python"
 
 id roboshop
 if [ $? -ne 0 ]
@@ -60,8 +60,8 @@ fi
 mkdir -p /app 
 VALIDATE $? "creating app directory"
 
-curl -L -o /tmp/shipping.zip https://roboshop-artifacts.s3.amazonaws.com/shipping-v3.zip 
-VALIDATE $? "shipping content download"
+curl -L -o /tmp/payment.zip https://roboshop-artifacts.s3.amazonaws.com/payment-v3.zip 
+VALIDATE $? "payment content download"
 
 rm -rf /app/*
 VALIDATE $? "Deleting existing content in /app directory"
@@ -69,42 +69,18 @@ VALIDATE $? "Deleting existing content in /app directory"
 cd /app 
 VALIDATE $? "redirect to /app directory"
 
-unzip /tmp/shipping.zip
+unzip /tmp/payment.zip
 VALIDATE $? "unziping the content on /app directory"
 
-mvn clean package
-VALIDATE $? "Packaging the shipping application"
-
-mv target/shipping-1.0.jar shipping.jar
-VALIDATE $? "Moving and renaming Jar file"
-
-cp /home/ec2-user/roboshop-shell-scripts/08-shipping.service /etc/systemd/system/shipping.service
-VALIDATE $? "configaring the shipping service"
-
-systemctl enable shipping 
-VALIDATE $? "enabling shipping service"
-
-systemctl start shipping
-VALIDATE $? "starting shipping service"
-
-# preparing mysql schema
-
-dnf install mysql -y &>>$LOG_FILE_NAME
-VALIDATE $? "installing MYSQL"
-
-mysql -h 172.31.23.169 -u root -pRoboShop@1 -e 'use cities' &>>$LOG_FILE_NAME
-if [ $? -ne 0 ]
-then
-    mysql -h 172.31.23.169 -uroot -pRoboShop@1 < /app/db/schema.sql &>>$LOG_FILE_NAME
-    mysql -h 172.31.23.169 -uroot -pRoboShop@1 < /app/db/app-user.sql  &>>$LOG_FILE_NAME
-    mysql -h 172.31.23.169 -uroot -pRoboShop@1 < /app/db/master-data.sql &>>$LOG_FILE_NAME
-    VALIDATE $? "Loading data into MySQL"
-else
-    echo -e "Data is already loaded into MySQL ... $Y SKIPPING $N"
-fi
+pip3 install -r requirements.txt
+VALIDATE $? " installing dependencies"
 
 
-systemctl restart shipping &>>$LOG_FILE_NAME
-VALIDATE $? "restart shipping"
+cp /home/ec2-user/roboshop-shell-scripts/09-payment.service /etc/systemd/system/payment.service
+VALIDATE $? "configaring the payment service"
 
-print_time
+systemctl enable payment 
+VALIDATE $? "enabling payment service"
+
+systemctl start payment
+VALIDATE $? "starting payment service"
