@@ -79,6 +79,9 @@ VALIDATE $? " installing dependencies"
 cp /home/ec2-user/roboshop-shell-scripts/09-payment.service /etc/systemd/system/payment.service
 VALIDATE $? "configaring the payment service"
 
+systemctl daemon-reload
+VALIDATE $? "daemon-reloading.... services"
+
 systemctl enable payment 
 VALIDATE $? "enabling payment service"
 
