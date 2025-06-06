@@ -1,5 +1,6 @@
 #!/bin/bash
 
+START_TIME=$(date +%s)
 USERID=$(id -u)
 R="\e[31m"
 G="\e[32m"
@@ -45,14 +46,8 @@ CHECK_USER(){
 
 CHECK_USER
 
-dnf module disable nodejs -y &>>$LOG_FILE_NAME
-VALIDATE $? "Disabling existing default NodeJS"
-
-dnf module enable nodejs:20 -y &>>$LOG_FILE_NAME
-VALIDATE $? "enabling nodejs:20"
-
-dnf install nodejs -y &>>$LOG_FILE_NAME
-VALIDATE $? "installing nodejs"
+dnf install maven -y &>>$LOG_FILE_NAME
+VALIDATE $? "installing maven"
 
 id roboshop
 if [ $? -ne 0 ]
@@ -63,12 +58,11 @@ else
     echo -e "$Y roboshop cart is allready exist $N"
 fi
 
-
 mkdir -p /app 
 VALIDATE $? "creating app directory"
 
-curl -L -o /tmp/cart.zip https://roboshop-artifacts.s3.amazonaws.com/cart-v3.zip 
-VALIDATE $? "cart content download"
+curl -L -o /tmp/shipping.zip https://roboshop-artifacts.s3.amazonaws.com/shipping-v3.zip 
+VALIDATE $? "shipping content download"
 
 rm -rf /app/*
 VALIDATE $? "Deleting existing content in /app directory"
@@ -76,22 +70,42 @@ VALIDATE $? "Deleting existing content in /app directory"
 cd /app 
 VALIDATE $? "redirect to /app directory"
 
-unzip /tmp/cart.zip
+unzip /tmp/shipping.zip
 VALIDATE $? "unziping the content on /app directory"
 
-npm install
-VALIDATE $? "npm install.. installing dependencies"
+mvn clean package
+VALIDATE $? "Packaging the shipping application"
 
-cp /home/ec2-user/roboshop-shell-scripts/07-cart.service /etc/systemd/system/cart.service
-VALIDATE $? "configaring the cart service"
+mv target/shipping-1.0.jar shipping.jar
+VALIDATE $? "Moving and renaming Jar file"
 
-systemctl daemon-reload
-VALIDATE $? "daemon-reloading.... services"
+cp /home/ec2-user/roboshop-shell-scripts/08-shipping.service /etc/systemd/system/shipping.service
+VALIDATE $? "configaring the shipping service"
 
-systemctl enable cart
-VALIDATE $? "enabling cart service"
+systemctl enable shipping 
+VALIDATE $? "enabling shipping service"
 
-systemctl start cart
-VALIDATE $? "starting cart service"
+systemctl start shipping
+VALIDATE $? "starting shipping service"
+
+# preparing mysql schema
+
+dnf install mysql -y &>>$LOG_FILE_NAME
+VALIDATE $? "installing MYSQL"
+
+mysql -h 172.31.23.169 -u root -pRoboShop@1 -e 'use cities' &>>$LOG_FILE_NAME
+if [ $? -ne 0 ]
+then
+    mysql -h 172.31.23.169 -uroot -pRoboShop@1 < /app/db/schema.sql &>>$LOG_FILE_NAME
+    mysql -h 172.31.23.169 -uroot -pRoboShop@1 < /app/db/app-user.sql  &>>$LOG_FILE_NAME
+    mysql -h 172.31.23.169 -uroot -pRoboShop@1 < /app/db/master-data.sql &>>$LOG_FILE_NAME
+    VALIDATE $? "Loading data into MySQL"
+else
+    echo -e "Data is already loaded into MySQL ... $Y SKIPPING $N"
+fi
+
+
+systemctl restart shipping &>>$LOG_FILE_NAME
+VALIDATE $? "restart shipping"
 
 print_time
