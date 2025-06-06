@@ -45,6 +45,11 @@ while true; do
     echo "📦 Items:"
     echo "$items"
     echo "-------------------------------------------"
+
+    # 👇 Send Email Alert
+    echo -e "🛒 Order ID: $order_id\n👤 User: $user\n💵 Total Price: ₹$price\n📦 Items:\n$items" | \
+    mutt -s "📦 New Order Alert — $order_id" naveenrajoli04@gmail.com
+    
   fi
 
   # Wait 10 seconds before checking again
