@@ -82,7 +82,7 @@ VALIDATE $? "unziping the content on /app directory"
 npm install
 VALIDATE $? "npm install.. installing dependencies"
 
-cp /home/ec2-cart/roboshop-shell-scripts/07-cart.service /etc/systemd/system/cart.service
+cp /home/ec2-user/roboshop-shell-scripts/07-cart.service /etc/systemd/system/cart.service
 VALIDATE $? "configaring the cart service"
 
 systemctl daemon-reload
