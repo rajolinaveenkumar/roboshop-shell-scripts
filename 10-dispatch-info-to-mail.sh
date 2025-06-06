@@ -1,6 +1,6 @@
 #!/bin/bash
 
-log_line=$(tail -f /var/log/messages)
+log_line=$(grep 'Order {' /var/log/messages | tail -n 1)
 
 # Extract JSON using grep + sed
 json=$(echo $log_line | grep -oP 'Order \K\{.*')
