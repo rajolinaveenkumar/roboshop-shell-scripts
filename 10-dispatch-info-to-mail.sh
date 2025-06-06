@@ -1,6 +1,6 @@
 #!/bin/bash
 
-log_line="/var/log/messages"
+log_line=$(tail -f /var/log/messages)
 
 # Extract JSON using grep + sed
 json=$(echo $log_line | grep -oP 'Order \K\{.*')
@@ -11,5 +11,8 @@ user=$(echo "$json" | jq -r '.user')
 price=$(echo "$json" | jq -r '.cart.total')
 items=$(echo "$json" | jq -r '.cart.items[] | "\(.name) - ₹\(.price) x \(.qty)"')
 
-echo $order_id
-echo $user
+echo "🛒 Order ID: $order_id"
+echo "👤 User: $user"
+echo "💵 Total Price: ₹$price"
+echo "📦 Items:"
+echo "$items"
