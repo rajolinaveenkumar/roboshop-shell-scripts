@@ -84,3 +84,5 @@ VALIDATE $? "enabling payment service"
 
 systemctl start payment
 VALIDATE $? "starting payment service"
+
+print_time
